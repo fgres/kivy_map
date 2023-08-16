@@ -1,3 +1,9 @@
+from kivy.config import Config # full screen. Config.set should be used before importing any other Kivy modules. Ideally, this means setting them right at the start of your main.py script.
+# Config.set('graphics', 'fullscreen', 1)
+Config.set('graphics', 'height', 200)
+Config.set('graphics', 'width', 200)
+# https://kivy.org/doc/stable/api-kivy.config.html
+
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import (
