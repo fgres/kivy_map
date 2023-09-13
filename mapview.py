@@ -1,4 +1,5 @@
 import geopandas
+import os
 
 
 from kivy.config import Config # full screen. Config.set should be used before importing any other Kivy modules. Ideally, this means setting them right at the start of your main.py script.
@@ -105,5 +106,6 @@ class MapViewApp(App):
         return mapview
 
 if __name__ == '__main__':
-    gis = GIS("/home/dunland/github/qScope/data/GIS/Shapefiles/bestandsgebaeude_export.shp")
+    SAMPLE_SHAPEFILE_PATH = os.environ['SAMPLE_SHAPEFILE_PATH']
+    gis = GIS(SAMPLE_SHAPEFILE_PATH)
     MapViewApp().run()
