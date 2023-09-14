@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 class GIS:
     def __init__(self, coords=None):
         SAMPLE_SHAPEFILE_PATH = os.environ['SAMPLE_SHAPEFILE_PATH'] 
@@ -37,14 +38,18 @@ class GIS:
         }
 
         # print("updated GIS bounding box with coords:", self.coords)
+    def set_widget(self, widget):
+        self.widget = widget
 
-    def coords_to_point(self, wid, lon, lat):
+    def coords_to_point(self, lon, lat):
         target_size = 100
         #longtitude 9 something
-        x = (lon - self.bbox['lon_min']) * target_size / (self.bbox['lon_max'] - self.bbox['lon_min']) + (wid.size[0] - target_size)/2
+        x = (lon - self.bbox['lon_min']) * target_size / (self.bbox['lon_max'] - self.bbox['lon_min']) + (self.widget.size[0] - target_size)/2
 
         #latitude 54 something
-        y = (lat - self.bbox['lat_min']) * target_size / (self.bbox['lat_max'] - self.bbox['lat_min']) + (wid.size[1] - target_size)/2
+        y = (lat - self.bbox['lat_min']) * target_size / (self.bbox['lat_max'] - self.bbox['lat_min']) + (self.widget.size[1] - target_size)/2
 
         # print("translated points to", x, y)
         return x, y
+
+gis = GIS()

@@ -28,16 +28,11 @@ from kivy.uix.boxlayout import BoxLayout
 print("window size initial", Window.size)
 from kivy.graphics import Color
 
-from GIS import GIS
+from GIS import gis
 from custom_map_view import CustomMapView
 import geopandas
 
 class MapViewApp(App):
-
-    def initialize_gis(self, bbox):
-        gis.lat_min, gis.lon_min, gis.lat_max, gis.lon_max = bbox # get_bbox() returns (54.19185593800895, 9.104732277106336, 54.19248364842369, 9.105805160712293)
-        gis.lat_diff = gis.lat_max - gis.lat_min
-        gis.lon_diff = gis.lon_max - gis.lon_min
 
     def add_map_makers(self, mapview):
         m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
@@ -55,39 +50,24 @@ class MapViewApp(App):
         indices = []
 
         for i, coord in enumerate(coords):
-            x, y = gis.coords_to_point(wid, coord[0], coord[1])
+            x, y = gis.coords_to_point(coord[0], coord[1])
             vertices.extend([x, y, 0, 0])
             indices.append(i)
 
         self.mesh = Mesh(vertices=vertices, indices=indices)
         self.mesh.mode = 'line_strip' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
 
-    def render_mesh(self, ):
+    def render_mesh(self, wid):
+        with wid.canvas:
+        # geom = gdf.loc[0, 'geometry']
+            for polygon in gis.gdf['geometry']:
+                self.build_mesh(wid, polygon.exterior.coords)
         return
 
     def build(self):
         mapview = CustomMapView(zoom=17, lat=54.19216979440788, lon=9.105268718909326)
 
-        self.initialize_gis(mapview.get_bbox())
-        gis.set_bbox(mapview.get_bbox())
-        mapview = self.add_map_makers(mapview)
-
-        wid = Widget(pos=(0, 0), size=Window.size)
-        wid.canvas.add(Color(0, 0, 0))
-
-
-        with wid.canvas:
-        # geom = gdf.loc[0, 'geometry']
-            for polygon in gis.gdf['geometry']:
-                self.build_mesh(wid, polygon.exterior.coords)
-
-        layout = BoxLayout(size_hint=(1, None), height=50)
-        mapview.add_widget(wid)
-        mapview.add_widget(layout)
-
         return mapview
 
 if __name__ == '__main__':
-
-    gis = GIS()
     MapViewApp().run()
