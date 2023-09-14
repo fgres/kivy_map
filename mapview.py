@@ -110,5 +110,5 @@ class MapViewApp(App):
         return mapview
 
 if __name__ == '__main__':
-    gis = GIS()
+    gis = GIS("/home/dunland/github/qScope/data/GIS/Shapefiles/bestandsgebaeude_export.shp")
     MapViewApp().run()
