@@ -1,2 +1,4 @@
 /kivy_venv
 /cache
+.env
+.DS_Store
