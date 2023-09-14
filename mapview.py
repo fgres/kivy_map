@@ -12,6 +12,13 @@ from kivy.logger import Logger
 Config.set('kivy', 'log_level', 'debug')
 # Config.write()
 from kivy_garden.mapview import MapView, MapMarker, MapLayer
+# print("window size", Window.size) # window.size is (width, height)
+from kivy.logger import Logger
+# Logger.setLevel(level=2)
+Config.set('kivy', 'log_level', 'debug')
+from kivy_garden.mapview import MapView
+from kivy_garden.mapview import MapMarker
+from kivy.app import App
 from kivy.graphics import Mesh
 
 from kivy.app import App
@@ -23,6 +30,7 @@ from kivy.graphics import Color
 
 from GIS import GIS
 from custom_map_view import CustomMapView
+import geopandas
 
 class MapViewApp(App):
 
@@ -33,8 +41,9 @@ class MapViewApp(App):
 
     def add_map_makers(self, mapview):
         m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
-        m1 = MapMarker(lat=gis.lat_min, lon=gis.lon_min)
-        m2 = MapMarker(lat=gis.lat_max, lon=gis.lon_max)
+        print('!!!!', type(gis.coords['lat_min']))
+        m1 = MapMarker(lat=gis.bbox['lat_min'], lon=gis.bbox['lon_min'])  
+        m2 = MapMarker(lat=gis.bbox['lat_max'], lon=gis.bbox['lon_max'])  
         mapview.add_marker(m0)
         mapview.add_marker(m1)
         mapview.add_marker(m2)
@@ -46,7 +55,7 @@ class MapViewApp(App):
         indices = []
 
         for i, coord in enumerate(coords):
-            x, y = gis.coords_to_point(coord, wid)
+            x, y = gis.coords_to_point(wid, coord[0], coord[1])
             vertices.extend([x, y, 0, 0])
             indices.append(i)
 
@@ -60,10 +69,12 @@ class MapViewApp(App):
         mapview = CustomMapView(zoom=17, lat=54.19216979440788, lon=9.105268718909326)
 
         self.initialize_gis(mapview.get_bbox())
+        gis.set_bbox(mapview.get_bbox())
         mapview = self.add_map_makers(mapview)
 
         wid = Widget(pos=(0, 0), size=Window.size)
         wid.canvas.add(Color(0, 0, 0))
+
 
         with wid.canvas:
         # geom = gdf.loc[0, 'geometry']
@@ -77,9 +88,6 @@ class MapViewApp(App):
         return mapview
 
 if __name__ == '__main__':
-    import os
-    from dotenv import load_dotenv
-    load_dotenv()
-    SAMPLE_SHAPEFILE_PATH = os.environ['SAMPLE_SHAPEFILE_PATH'] 
-    gis = GIS(SAMPLE_SHAPEFILE_PATH)
+
+    gis = GIS()
     MapViewApp().run()
