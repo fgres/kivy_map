@@ -4,12 +4,15 @@ import geopandas
 from kivy.config import Config # full screen. Config.set should be used before importing any other Kivy modules. Ideally, this means setting them right at the start of your main.py script.
 # Config.set('graphics', 'fullscreen', 1)
 # somehow the value set here gets two times more!!
-Config.set('graphics', 'width', 720)
-Config.set('graphics', 'height', 480)
+Config.set('graphics', 'width', 1440)
+Config.set('graphics', 'height', 960)
 # https://kivy.org/doc/stable/api-kivy.config.html
 # print("window size", Window.size) # window.size is (width, height)
-
+from kivy.logger import Logger
+# Logger.setLevel(level=2)
+Config.set('kivy', 'log_level', 'debug')
 from kivy_garden.mapview import MapView
+from kivy_garden.mapview import MapMarker
 from kivy.app import App
 from kivy.graphics import Mesh
 from kivy.core.window import Window
@@ -21,7 +24,7 @@ from kivy.graphics import Color
 class GIS:
     def __init__(self, coords=None):
 
-        self.gdf = geopandas.read_file("/home/dunland/github/qScope/data/GIS/Shapefiles/bestandsgebaeude_export.shp")#.to_crs(epsg=3857)
+        self.gdf = geopandas.read_file("/Users/onlinelehretechnik/uniMinijob/GISdata/bestandsgebaeude_export.shp")#.to_crs(epsg=3857)
 
         # if no coords provided, take polygons max extents as frame
         if coords is None:
@@ -44,50 +47,57 @@ class GIS:
 
 
     def set_bbox(self, coords):
-        self.coords = {
+        self.bbox = {
             'lat_min' : coords[0],
             'lon_min' : coords[1],
             'lat_max' : coords[2],
             'lon_max' : coords[3]
         }
 
-        print("updated GIS bounding box with coords:", self.coords)
+        # print("updated GIS bounding box with coords:", self.coords)
 
-    def coords_to_point(self, lon, lat):
+    def coords_to_point(self, wid, lon, lat):
+        target_size = 100
         #longtitude 9 something
-        x = (lon - self.coords['lon_min']) * Window.size[0] / (self.coords['lon_max'] - self.coords['lon_min'])
+        x = (lon - self.bbox['lon_min']) * target_size / (self.bbox['lon_max'] - self.bbox['lon_min']) + (wid.size[0] - target_size)/2
 
         #latitude 54 something
-        y = (lat - self.coords['lat_min']) * Window.size[1] / (self.coords['lat_max'] - self.coords['lat_min'])
+        y = (lat - self.bbox['lat_min']) * target_size / (self.bbox['lat_max'] - self.bbox['lat_min']) + (wid.size[1] - target_size)/2
 
-        print("translated points to", x, y)
+        # print("translated points to", x, y)
         return x, y
 
 class MapViewApp(App):
 
-    def build_mesh(self, coords):
+    def build_mesh(self, wid, coords):
         vertices = []
         # vertices.extend([720, 480, 0, 0]) # shows where is the center of the widget
         indices = []
 
         for i, coord in enumerate(coords):
-            x, y = gis.coords_to_point(coord[0], coord[1])
+            x, y = gis.coords_to_point(wid, coord[0], coord[1])
             vertices.extend([x, y, 0, 0])
             indices.append(i)
         return Mesh(vertices=vertices, indices=indices)
 
     def build(self):
-        mapview = MapView(zoom=12, lat=54.19216979440788, lon=9.105268718909326)
+        mapview = MapView(zoom=17, lat=54.19216979440788, lon=9.105268718909326)
 
         wid = Widget(pos=(0, 0), size=Window.size)
         wid.canvas.add(Color(0, 0, 0))
         # print("==== widget size", wid.size)
 
         gis.set_bbox(mapview.get_bbox())
-
+        m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
+        print('!!!!', type(gis.coords['lat_min']))
+        m1 = MapMarker(lat=gis.bbox['lat_min'], lon=gis.bbox['lon_min'])  
+        m2 = MapMarker(lat=gis.bbox['lat_max'], lon=gis.bbox['lon_max'])  
+        mapview.add_marker(m0)
+        mapview.add_marker(m1)
+        mapview.add_marker(m2)
         with wid.canvas:
             for polygon in gis.gdf['geometry']:
-                self.mesh = self.build_mesh(polygon.exterior.coords)
+                self.mesh = self.build_mesh(wid, polygon.exterior.coords)
                 self.mesh.mode = 'line_strip' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
 
         layout = BoxLayout(size_hint=(1, None), height=50)
@@ -102,10 +112,10 @@ class MapViewApp(App):
         mapview.add_widget(layout)
         # print(mapview.get_bbox())
 
-        mapview.on_touch_down(
+        # mapview.on_touch_down(
             # print(Window.mouse_pos)
             # print(mapview.get_latlon_at(Window.mouse_pos))
-        )
+        # )
 
         return mapview
 
