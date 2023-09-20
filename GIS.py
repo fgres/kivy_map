@@ -4,9 +4,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+from kivy.core.window import Window
 
 class GIS:
     def __init__(self, coords=None):
+        self.isInitialRender = True
         SAMPLE_SHAPEFILE_PATH = os.environ['SAMPLE_SHAPEFILE_PATH'] 
         self.gdf = geopandas.read_file(SAMPLE_SHAPEFILE_PATH)#.to_crs(epsg=3857)
 
@@ -42,12 +44,15 @@ class GIS:
         self.widget = widget
 
     def coords_to_point(self, lon, lat):
-        target_size = 100
+        if self.isInitialRender == True:
+            target_display_size = [100, 100]
+        else:
+            target_display_size = Window.size
         #longtitude 9 something
-        x = (lon - self.bbox['lon_min']) * target_size / (self.bbox['lon_max'] - self.bbox['lon_min']) + (self.widget.size[0] - target_size)/2
+        x = (lon - self.bbox['lon_min']) * target_display_size[0] / (self.bbox['lon_max'] - self.bbox['lon_min']) + (self.widget.size[0] - target_display_size[0])/2
 
         #latitude 54 something
-        y = (lat - self.bbox['lat_min']) * target_size / (self.bbox['lat_max'] - self.bbox['lat_min']) + (self.widget.size[1] - target_size)/2
+        y = (lat - self.bbox['lat_min']) * target_display_size[1] / (self.bbox['lat_max'] - self.bbox['lat_min']) + (self.widget.size[1] - target_display_size[1])/2
 
         # print("translated points to", x, y)
         return x, y

@@ -4,29 +4,34 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.graphics import Color
 from kivy.uix.boxlayout import BoxLayout
+from kivy_garden.mapview import MapMarker
 
 from GIS import gis
 
 class CustomMapView(MapView):
     def __init__(self, *args, **kwargs):
-        self.mesh_list = []
         super(CustomMapView, self).__init__(*args, **kwargs)
         gis.set_bbox(self.get_bbox())
-                
-        # mapview = self.add_map_makers(mapview)
+        self.add_bbox_map_makers()
 
         self.wid = Widget(pos=(0, 0), size=Window.size)
-        print("@@@@@@@@INITIAL WIDGET SIZE", self.wid.size)
         self.wid.canvas.add(Color(0, 0, 0))
         gis.set_widget(self.wid)
-        print("!!!!!!!!initial wid", self.wid)
 
         self.render_mesh()
+        gis.isInitialRender = False
 
         layout = BoxLayout(size_hint=(1, None), height=50)
         self.add_widget(self.wid)
         self.add_widget(layout)
 
+    def add_bbox_map_makers(self):
+        # m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
+        m1 = MapMarker(lat=gis.bbox['lat_min'], lon=gis.bbox['lon_min'])  
+        m2 = MapMarker(lat=gis.bbox['lat_max'], lon=gis.bbox['lon_max'])  
+        self.add_marker(m1)
+        self.add_marker(m2)
+        
     def build_mesh(self, coords):
         vertices = []
         # vertices.extend([720, 480, 0, 0]) # shows where is the center of the widget
@@ -37,10 +42,9 @@ class CustomMapView(MapView):
             vertices.extend([x, y, 0, 0])
             indices.append(i)
 
-        temp_mesh = Mesh(vertices=vertices, indices=indices)
-        temp_mesh.mode = 'line_strip' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
+        self.temp_mesh = Mesh(vertices=vertices, indices=indices)
+        self.temp_mesh.mode = 'line_strip' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
         # print("$$$$$$$$$$$$$$MESH POS", self.mesh.pos)
-        self.mesh_list.append(temp_mesh) 
 
     def render_mesh(self):
         with self.wid.canvas:
@@ -62,13 +66,20 @@ class CustomMapView(MapView):
     # fire only touch_down and touch_up event
     def on_touch_move(self, touch):
         print("!!!!!!!!ON TOUCH MOVE")
-
+        
         gis.set_bbox(self.get_bbox())
-        # gis.set_widget(self.wid)
-
+        self.add_bbox_map_makers()
         self.render_mesh()
+
+        # code for moving Mesh (not re-render)
+        # self.last_pos_x = touch.pos[0]
+        # self.last_pos_y = touch.pos[1]
         # self.next_pos_x = touch.pos[0]
         # self.next_pos_y = touch.pos[1]
+        # for _mesh in self.mesh_list:
+        #     print(_mesh.vertices)
+        #     _mesh.vertices = [x+1 for x in _mesh.vertices]
+
         # x_move = self.next_pos_x - self.last_pos_x
         # y_move = self.next_pos_y - self.last_pos_y
         # self.last_pos_x = touch.pos[0]
@@ -87,9 +98,6 @@ class CustomMapView(MapView):
         #         list_id =+ 1
 
         #     _mesh.vertices = new_positions
-
-
-
 
         if super().on_touch_move(touch):
             return True

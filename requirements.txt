@@ -13,6 +13,7 @@ Kivy==2.2.1
 Kivy-examples==2.2.1
 Kivy-Garden==0.1.5
 kivy-garden.mapview==1.0.6
+load-dotenv==0.1.0
 numpy==1.24.4
 packaging==23.1
 pandas==2.0.3
@@ -20,6 +21,7 @@ Pillow==9.5.0
 Pygments==2.15.1
 pyproj==3.5.0
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3
 requests==2.31.0
 shapely==2.0.1
