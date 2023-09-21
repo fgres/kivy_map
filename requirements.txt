@@ -13,6 +13,7 @@ Kivy==2.2.1
 Kivy-examples==2.2.1
 Kivy-Garden==0.1.5
 kivy-garden.mapview==1.0.6
+load_dotenv
 numpy==1.24.4
 packaging==23.1
 pandas==2.0.3
