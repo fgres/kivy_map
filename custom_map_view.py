@@ -87,14 +87,18 @@ class CustomMapView(MapView):
         self.shapefileRenderer = ShapefileRenderer()
         self.add_widget(self.shapefileRenderer)
 
-    # fire only touch_down and touch_up event
-    def on_touch_move(self, touch):
-        print("!!!!!!!!ON TOUCH MOVE")
+    def refresh_shapefile(self):
         self.recreate_shapefileRenderer()
         # self.remove_widget(self.shapefileRenderer)
         gis.set_bbox(self.get_bbox())
         self.add_bbox_map_makers()
         self.render_mesh()
+
+
+    # fire only touch_down and touch_up event
+    def on_touch_move(self, touch):
+        print("!!!!!!!!ON TOUCH MOVE")
+        self.refresh_shapefile()
 
         # code for moving Mesh (not re-render)
         # self.last_pos_x = touch.pos[0]
@@ -131,6 +135,7 @@ class CustomMapView(MapView):
         return
 
     def on_touch_up(self, touch):
+        self.refresh_shapefile()
         if super().on_touch_up(touch):
             return True
         if not self.collide_point(touch.x, touch.y):
