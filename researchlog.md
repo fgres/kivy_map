@@ -1,6 +1,19 @@
 # research log
 
 
+
+## 28.09.2023
+new: instead of manipulating vertecies, now it creates a child widget and display shapefile there. when move event fires the child widgets get recreated. Might be that the process is heavy but so far it kinda works. 
+
+ref:
+https://kivy.org/doc/stable/api-kivy.uix.widget.html#kivy.uix.widget.Widget.remove_widget
+
+old ref:
+https://kivy.org/doc/stable/api-kivy.graphics.tesselator.html
+"self.canvas.add"
+
+
+
 ## 20.09.2023 remove old shapefile render
 very difficult.
 https://kivy.org/doc/stable/api-kivy.graphics.vertex_instructions.html

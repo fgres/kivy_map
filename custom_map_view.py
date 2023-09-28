@@ -8,6 +8,23 @@ from kivy_garden.mapview import MapMarker
 
 from GIS import gis
 
+from kivy.uix.floatlayout import FloatLayout
+from kivy.lang import Builder
+
+
+Builder.load_string('''
+<ShapefileRenderer>
+    canvas:
+        Color
+            rgba: 0.5,0.5,0.5,0.5
+        Rectangle:
+            pos: self.center_x, self.center_y
+            size: 100, 100
+''')
+
+class ShapefileRenderer(FloatLayout):
+    pass
+
 class CustomMapView(MapView):
     def __init__(self, *args, **kwargs):
         super(CustomMapView, self).__init__(*args, **kwargs)
@@ -18,12 +35,13 @@ class CustomMapView(MapView):
         self.wid.canvas.add(Color(0, 0, 0))
         gis.set_widget(self.wid)
 
+        self.shapefileRenderer = ShapefileRenderer()
+        self.add_widget(self.shapefileRenderer)
+
         self.render_mesh()
         gis.isInitialRender = False
 
-        layout = BoxLayout(size_hint=(1, None), height=50)
         self.add_widget(self.wid)
-        self.add_widget(layout)
 
     def add_bbox_map_makers(self):
         # m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
@@ -43,11 +61,12 @@ class CustomMapView(MapView):
             indices.append(i)
 
         self.temp_mesh = Mesh(vertices=vertices, indices=indices)
-        self.temp_mesh.mode = 'line_strip' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
+        self.temp_mesh.mode = 'triangle_fan' # 'points', 'line_strip', 'line_loop', 'lines', 'triangle_strip', 'triangle_fan'
         # print("$$$$$$$$$$$$$$MESH POS", self.mesh.pos)
 
     def render_mesh(self):
-        with self.wid.canvas:
+        with self.shapefileRenderer.canvas:
+            Color(1, 0, 0, 0.3)
         # geom = gdf.loc[0, 'geometry']
             for polygon in gis.gdf['geometry']:
                 self.build_mesh(polygon.exterior.coords)
@@ -62,11 +81,17 @@ class CustomMapView(MapView):
         if not self.collide_point(touch.x, touch.y):
             return False
         return True
-    
+
+    def recreate_shapefileRenderer(self):
+        self.remove_widget(self.shapefileRenderer)
+        self.shapefileRenderer = ShapefileRenderer()
+        self.add_widget(self.shapefileRenderer)
+
     # fire only touch_down and touch_up event
     def on_touch_move(self, touch):
         print("!!!!!!!!ON TOUCH MOVE")
-        
+        self.recreate_shapefileRenderer()
+        # self.remove_widget(self.shapefileRenderer)
         gis.set_bbox(self.get_bbox())
         self.add_bbox_map_makers()
         self.render_mesh()
