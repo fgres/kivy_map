@@ -49,7 +49,11 @@ class GIS:
         else:
             target_display_size = Window.size
         #longtitude 9 something
-        x = (lon - self.bbox['lon_min']) * target_display_size[0] / (self.bbox['lon_max'] - self.bbox['lon_min']) + (self.widget.size[0] - target_display_size[0])/2
+        if self.bbox['lon_max'] == self.bbox['lon_min']: # sometimes lon_max and lon_min is both 180 so here it assumes that it means 360 instead of 0
+            lon_diff = 360
+        else:
+            lon_diff = self.bbox['lon_max'] - self.bbox['lon_min']
+        x = (lon - self.bbox['lon_min']) * target_display_size[0] / (lon_diff) + (self.widget.size[0] - target_display_size[0])/2
 
         #latitude 54 something
         y = (lat - self.bbox['lat_min']) * target_display_size[1] / (self.bbox['lat_max'] - self.bbox['lat_min']) + (self.widget.size[1] - target_display_size[1])/2

@@ -16,6 +16,7 @@ from kivy.app import App
 from kivy.app import App
 from kivy.core.window import Window
 print("window size initial", Window.size)
+from kivy.clock import Clock
 
 from custom_map_view import CustomMapView
 
@@ -23,7 +24,7 @@ class MapViewApp(App):
 
     def build(self):
         mapview = CustomMapView(zoom=17, lat=54.19216979440788, lon=9.105268718909326)
-
+        Clock.schedule_interval(mapview.refresh_shapefile, 0.5)
         return mapview
 
 if __name__ == '__main__':

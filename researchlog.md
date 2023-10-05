@@ -1,5 +1,12 @@
 # research log
 
+## transform shapefile while zooming
+the problem is that zooming in/out calls an event "on_transform" at the begining of zooming (though usually it's sequential) and at the end of the zoom, the basemap is zoomed and the shape file is not zoomed (or the last the zoomed size when it's sequential). so to disguise this glitch, in the build function at mapview.py Clock calls refresh_shapefile intervally
+
+## how to get the meta data from shapefile
+see:
+https://github.com/quarree100/qScope_frontend/blob/main/q100viz/buildings.py
+def load_data(self, create_clusters=False):
 
 
 ## 28.09.2023

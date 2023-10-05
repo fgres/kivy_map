@@ -87,7 +87,7 @@ class CustomMapView(MapView):
         self.shapefileRenderer = ShapefileRenderer()
         self.add_widget(self.shapefileRenderer)
 
-    def refresh_shapefile(self):
+    def refresh_shapefile(self, *args): # clock gives some args so here it receives *args eventhough it's not needed in the function
         self.recreate_shapefileRenderer()
         # self.remove_widget(self.shapefileRenderer)
         gis.set_bbox(self.get_bbox())
@@ -99,34 +99,6 @@ class CustomMapView(MapView):
     def on_touch_move(self, touch):
         print("!!!!!!!!ON TOUCH MOVE")
         self.refresh_shapefile()
-
-        # code for moving Mesh (not re-render)
-        # self.last_pos_x = touch.pos[0]
-        # self.last_pos_y = touch.pos[1]
-        # self.next_pos_x = touch.pos[0]
-        # self.next_pos_y = touch.pos[1]
-        # for _mesh in self.mesh_list:
-        #     print(_mesh.vertices)
-        #     _mesh.vertices = [x+1 for x in _mesh.vertices]
-
-        # x_move = self.next_pos_x - self.last_pos_x
-        # y_move = self.next_pos_y - self.last_pos_y
-        # self.last_pos_x = touch.pos[0]
-        # self.last_pos_y = touch.pos[1]
-        # print(x_move, y_move)
-        # for _mesh in self.mesh_list:
-        #     new_positions = []
-        #     list_id = 0
-        #     for i in _mesh.vertices:
-        #         print(_mesh)
-        #         if list_id % 2 == 0:
-        #             _mesh[list_id] =+ x_move
-        #         else:
-        #             _mesh[list_id] =+ y_move
-        #         new_positions.append(i)
-        #         list_id =+ 1
-
-        #     _mesh.vertices = new_positions
 
         if super().on_touch_move(touch):
             return True
@@ -142,9 +114,18 @@ class CustomMapView(MapView):
             return False
         return 
     
+    def on_touch_down(self, touch):
+        self.refresh_shapefile()
+        if super().on_touch_down(touch):
+            return True
+        if not self.collide_point(touch.x, touch.y):
+            return False
+        return 
 
     def on_transform(self, *args):
         print("Hello!"); 
+        if gis.isInitialRender == False:
+            self.refresh_shapefile()
         super().on_transform(args); 
 
 
