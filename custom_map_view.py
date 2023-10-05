@@ -1,10 +1,10 @@
 from kivy_garden.mapview import MapView
 from kivy.graphics import Mesh
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.graphics import Color
-from kivy.uix.boxlayout import BoxLayout
-from kivy_garden.mapview import MapMarker
+from kivy_garden.mapview import MapMarker, MapMarkerPopup
 
 from GIS import gis
 
@@ -29,7 +29,7 @@ class CustomMapView(MapView):
     def __init__(self, *args, **kwargs):
         super(CustomMapView, self).__init__(*args, **kwargs)
         gis.set_bbox(self.get_bbox())
-        self.add_bbox_map_makers()
+        # self.add_bbox_map_makers()
 
         self.wid = Widget(pos=(0, 0), size=Window.size)
         self.wid.canvas.add(Color(0, 0, 0))
@@ -42,9 +42,15 @@ class CustomMapView(MapView):
         gis.isInitialRender = False
 
         self.add_widget(self.wid)
+        
+        self.add_building_info_marker()
+
+    def add_building_info_marker(self):
+        m0 = MapMarkerPopup(lat=54.19216979440788, lon=9.105268718909326)  # Lille
+        m0.add_widget(Button(text="building A"))
+        self.add_marker(m0)
 
     def add_bbox_map_makers(self):
-        # m0 = MapMarker(lat=54.19216979440788, lon=9.105268718909326)  # Lille
         m1 = MapMarker(lat=gis.bbox['lat_min'], lon=gis.bbox['lon_min'])  
         m2 = MapMarker(lat=gis.bbox['lat_max'], lon=gis.bbox['lon_max'])  
         self.add_marker(m1)
@@ -91,7 +97,7 @@ class CustomMapView(MapView):
         self.recreate_shapefileRenderer()
         # self.remove_widget(self.shapefileRenderer)
         gis.set_bbox(self.get_bbox())
-        self.add_bbox_map_makers()
+        # self.add_bbox_map_makers()
         self.render_mesh()
 
 
