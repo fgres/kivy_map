@@ -1,5 +1,8 @@
 # research log
 
+## pop up marker for each building 
+marker shows each buildings address. To include more information, the size of the marker should be responsive to its content.
+
 ## transform shapefile while zooming
 the problem is that zooming in/out calls an event "on_transform" at the begining of zooming (though usually it's sequential) and at the end of the zoom, the basemap is zoomed and the shape file is not zoomed (or the last the zoomed size when it's sequential). so to disguise this glitch, in the build function at mapview.py Clock calls refresh_shapefile intervally
 

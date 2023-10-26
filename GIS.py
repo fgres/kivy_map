@@ -5,12 +5,37 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from kivy.core.window import Window
+""" reference for shapefile column
+columns = {
+        'Kataster_C': 'string',  # Code
+        'Kataster_S': 'string',  # Straße
+        'Kataster_H': 'string',  # Hausnummer
+        # 'Kataster_B': 'float',  # Baujahr
+        'Kataster_6': 'float',  # Nettogrundfläche
+        'Kataster13': 'float',  # spez. Wärmeverbrauch
+        'Kataster15': 'float',  # spez. Stromverbrauch
+        'Kataster_E': 'string',  # Energieträger
+        'Kataster_A': 'string',  # Gebäudetyp
+        'Kataster_W' : 'int'
+}
+"""
+
+crs = "EPSG:3857"
+
+def read_shapefile(file, layer=None, columns=None):
+    df = geopandas.read_file(file, layer=layer).to_crs(crs=crs)
+    if columns:
+        df = df.astype(columns)
+        return df.loc[:, ['geometry', *columns.keys()]]
+    return df
 
 class GIS:
     def __init__(self, coords=None):
-        self.isInitialRender = True
+        self.isInitialRender = True 
         SAMPLE_SHAPEFILE_PATH = os.environ['SAMPLE_SHAPEFILE_PATH'] 
-        self.gdf = geopandas.read_file(SAMPLE_SHAPEFILE_PATH)#.to_crs(epsg=3857)
+        
+
+        self.gdf = geopandas.read_file(SAMPLE_SHAPEFILE_PATH)#.astype(columns)#.set_index('Kataster_C').to_crs(crs=crs)
 
         # if no coords provided, take polygons max extents as frame
         if coords is None:
@@ -44,6 +69,7 @@ class GIS:
         self.widget = widget
 
     def coords_to_point(self, lon, lat):
+        # at the booting of the app, the resolution of the window is not set as it is defined at mapview.py. self.isInitialRender is used to differentiate the calculation of shapefile rendering 
         if self.isInitialRender == True:
             target_display_size = [100, 100]
         else:
